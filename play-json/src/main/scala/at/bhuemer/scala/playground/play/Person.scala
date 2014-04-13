@@ -15,7 +15,7 @@ object Person {
   import Formats.stringsFormats
   import Formats.intsFormats
 
-  implicit val personFormats: Reads[Person] = Formats(
+  implicit val personFormats: Formats[Person] = Formats(
     readF = {
       case JsObject(fields) => for {
         firstName <- stringsFormats.read(fields("firstName"))
@@ -32,29 +32,24 @@ object Person {
     }
   )
 
-  val personFormatsApplicative: Reads[Person] = Formats(
-    readF = {
-      case JsObject(fields) =>
-        import Applicative._
+  implicit val personReads: Reads[Person] = {
+    import scalaz._
+    import Scalaz._
+    import ReadsBuilder._
+    import FormatsBuilderOps._
+    import Formats._
 
-        val firstName = stringsFormats.read(fields("firstName"))
-        val lastName = stringsFormats.read(fields("lastName"))
-        val age = intsFormats.read(fields("age"))
+    ("firstName".read[String] |@|
+    "lastName".read[String] |@|
+    "age".read[Int])(Person.apply).build
+  }
 
-        optionInstance.apply(
-        optionInstance.apply(
-        optionInstance.apply(
-          optionInstance.pure(create)
-        )(firstName))(lastName))(age)
-    },
-    writeF = {
-      person =>
-        JsObject(Map(
-          "firstName" -> stringsFormats.write(Some(person.firstName)), // we insist that they're not null
-          "lastName" -> stringsFormats.write(Some(person.lastName)),
-          "age" -> intsFormats.write(Some(person.age))
-        ))
-    }
-  )
+  def main(args: Array[String]): Unit = {
+    println(personReads.read(JsObject(Map(
+      "firstName" -> JsString("John"),
+      "lastName" -> JsString("Doe"),
+      "age" -> JsNumber(12)
+    ))))
+  }
 
 }

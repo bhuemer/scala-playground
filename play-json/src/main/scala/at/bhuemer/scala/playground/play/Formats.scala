@@ -27,3 +27,51 @@ object Formats {
   implicit val stringsFormats: Formats[String] = Formats({ case JsString(s) => Some(s) }, JsString)
 
 }
+
+trait FormatsBuilderOps {
+  def read[A : Reads]: ReadsBuilder[A]
+}
+
+object FormatsBuilderOps {
+
+  implicit def stringFormatBuilderOps(fieldName: String) = new FormatsBuilderOps {
+    override def read[A: Reads]: ReadsBuilder[A] = new ReadsBuilder[A] {
+      override def build: Reads[A] = new Reads[A] {
+        override def read(value: JsValue): Option[A] = value match {
+          case JsObject(fields) => implicitly[Reads[A]].read(fields(fieldName))
+          case _ => None
+        }
+      }
+    }
+  }
+
+}
+
+trait ReadsBuilder[A] {
+  def build: Reads[A]
+}
+
+object ReadsBuilder {
+
+  implicit def readsReadsBuilder[A](reads: Reads[A]) = new ReadsBuilder[A] {
+    override def build: Reads[A] = reads
+  }
+
+  implicit def readsBuilderApplicative = new scalaz.Apply[ReadsBuilder] {
+    override def map[A, B](fa: ReadsBuilder[A])(f: A => B): ReadsBuilder[B] = new ReadsBuilder[B] {
+      override def build: Reads[B] = new Reads[B] {
+        override def read(value: JsValue): Option[B] = fa.build.read(value) map f
+      }
+    }
+
+    override def ap[A, B](fa: => ReadsBuilder[A])(fab: => ReadsBuilder[A => B]): ReadsBuilder[B] = new ReadsBuilder[B] {
+      override def build: Reads[B] = new Reads[B] {
+        override def read(value: JsValue): Option[B] = for {
+          a <- fa.build.read(value)
+          f <- fab.build.read(value)
+        } yield f(a)
+      }
+    }
+  }
+
+}
