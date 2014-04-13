@@ -5,7 +5,7 @@ trait Reads[A] {
 }
 
 trait Writes[A] {
-  def write(value: A): JsValue
+  def write(value: Option[A]): JsValue
 }
 
 /** One trait to rule them all */
@@ -17,7 +17,7 @@ object Formats {
   /** So that we don't have to implement the error case all the time and to get rid of other boiler-plate code */
   def apply[A](readF: PartialFunction[JsValue, Option[A]], writeF: A => JsValue) = new Formats[A] {
     override def read(value: JsValue): Option[A] = readF.applyOrElse(value, _ => None)
-    override def write(value: A): JsValue = writeF.apply(value)
+    override def write(value: Option[A]): JsValue = value.map(writeF).getOrElse(JsNull)
   }
 
   implicit val intsFormats: Formats[Int] = Formats({ case JsNumber(d) => Some(d.toInt) }, JsNumber(_))
