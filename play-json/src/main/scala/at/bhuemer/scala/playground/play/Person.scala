@@ -4,6 +4,14 @@ case class Person(firstName: String, lastName: String, age: Int)
 
 object Person {
 
+  def create = {
+    firstName: String => {
+      lastName: String => {
+        age: Int => apply(firstName, lastName, age)
+      }
+    }
+  }
+
   import Formats.stringsFormats
   import Formats.intsFormats
 
@@ -21,6 +29,31 @@ object Person {
         "lastName" -> stringsFormats.write(Some(person.lastName)),
         "age" -> intsFormats.write(Some(person.age))
       ))
+    }
+  )
+
+  val personFormatsApplicative: Reads[Person] = Formats(
+    readF = {
+      case JsObject(fields) =>
+        import Applicative._
+
+        val firstName = stringsFormats.read(fields("firstName"))
+        val lastName = stringsFormats.read(fields("lastName"))
+        val age = intsFormats.read(fields("age"))
+
+        optionInstance.apply(
+        optionInstance.apply(
+        optionInstance.apply(
+          optionInstance.pure(create)
+        )(firstName))(lastName))(age)
+    },
+    writeF = {
+      person =>
+        JsObject(Map(
+          "firstName" -> stringsFormats.write(Some(person.firstName)), // we insist that they're not null
+          "lastName" -> stringsFormats.write(Some(person.lastName)),
+          "age" -> intsFormats.write(Some(person.age))
+        ))
     }
   )
 
