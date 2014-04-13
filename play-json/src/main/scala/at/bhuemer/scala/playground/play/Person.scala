@@ -17,9 +17,9 @@ object Person {
     },
     writeF = {
       person => JsObject(Map(
-        "firstName" -> stringsFormats.write(person.firstName),
-        "lastName" -> stringsFormats.write(person.lastName),
-        "age" -> intsFormats.write(person.age)
+        "firstName" -> stringsFormats.write(Some(person.firstName)), // we insist that they're not null
+        "lastName" -> stringsFormats.write(Some(person.lastName)),
+        "age" -> intsFormats.write(Some(person.age))
       ))
     }
   )

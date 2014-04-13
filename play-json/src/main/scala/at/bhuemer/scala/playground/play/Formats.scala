@@ -16,7 +16,7 @@ object Formats {
 
   /** So that we don't have to implement the error case all the time and to get rid of other boiler-plate code */
   def apply[A](readF: PartialFunction[JsValue, Option[A]], writeF: A => JsValue) = new Formats[A] {
-    override def read(value: JsValue): Option[A] = readF.applyOrElse(value, _ => None)
+    override def read(value: JsValue): Option[A] = if (readF.isDefinedAt(value)) readF.apply(value) else None
     override def write(value: Option[A]): JsValue = value.map(writeF).getOrElse(JsNull)
   }
 
