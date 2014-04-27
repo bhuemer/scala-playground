@@ -16,16 +16,22 @@ object GitHubDemoApp {
     // This one line changes the whole application from being executed asynchronously to synchronously.
     // val githubService = new HttpGitHubService(new BlockingHttpRequestor[Synchronous])
 
-    Seq("bhuemer", "foobar", "doesthisnameexist", "horst") foreach { name =>
-      githubService.repositorieNamesFor(name) map {
-        case Some(List())       => println(s"${Thread.currentThread().getName} - Found no repositories for $name.")
-        case Some(repositories) => println(s"${Thread.currentThread().getName} - Found repositories: $repositories for $name")
-        case None => println(s"${Thread.currentThread().getName} - Could not request repositories for $name.")
+    Seq("bhuemer", "foobar", "doesthisnameexist", "horst") foreach { user =>
+      githubService.repositoryNamesFor(user) map {
+        case Some(List())       => println(s"${Thread.currentThread().getName} - Found no repositories for $user.")
+        case Some(repositories) => println(s"${Thread.currentThread().getName} - Found repositories: $repositories for $user")
+        case None => println(s"${Thread.currentThread().getName} - Could not request repositories for $user.")
       }
     }
 
+    githubService.commitsFor("bhuemer", "scala-playground") map {
+      case Some(List())       => println(s"${Thread.currentThread().getName} - Found no commits.")
+      case Some(commits) => println(s"${Thread.currentThread().getName} - Found commits: $commits")
+      case None => println(s"${Thread.currentThread().getName} - Could not request commits.")
+    }
+
     // In case we're using futures .. wait a bit, don't stop immediately.
-    Thread.sleep(10000)
+    Thread.sleep(20000)
   }
 
 }
