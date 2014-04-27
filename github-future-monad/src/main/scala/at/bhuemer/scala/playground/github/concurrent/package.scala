@@ -11,9 +11,11 @@ package object concurrent {
 
   /**
    * A dummy context that can be used instead of future. This one doesn't do anything (it's really just an ID monad
-   * so to say), but when we use this we can switch from asynchronous to synchronous evaluation.
+   * so to say), but when we use this we can switch from asynchronous to synchronous evaluation. Also, I'm deliberately
+   * not just using "type Synchronous[+A] = A" to avoid any kind of confusion as to which method should be called
+   * when working with an instance of Synchronous[ Option[..] ] - the compiler would like to use Option's map here.
    */
-  trait Synchronous[A] { self =>
+  trait Synchronous[+A] { self =>
     def get: A
 
     def map[B](f: A => B): Synchronous[B] = Synchronous { f(self.get) }
