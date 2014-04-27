@@ -46,18 +46,24 @@ object GitHubDemoApp {
 //      }
 //    }
 
-    Seq("bhuemer", "foobar", "doesthisnameexist", "horst") foreach { user =>
-      githubService.repositoryNamesFor(user) map {
-        case Some(List())       => println(s"${Thread.currentThread().getName} - Found no repositories for $user.")
-        case Some(repositories) => println(s"${Thread.currentThread().getName} - Found repositories: $repositories for $user")
-        case None => println(s"${Thread.currentThread().getName} - Could not request repositories for $user.")
-      }
-    }
+//    Seq("bhuemer", "foobar", "doesthisnameexist", "horst") foreach { user =>
+//      githubService.repositoryNamesFor(user) map {
+//        case Some(List())       => println(s"${Thread.currentThread().getName} - Found no repositories for $user.")
+//        case Some(repositories) => println(s"${Thread.currentThread().getName} - Found repositories: $repositories for $user")
+//        case None => println(s"${Thread.currentThread().getName} - Could not request repositories for $user.")
+//      }
+//    }
+//
+//    githubService.commitsFor("bhuemer", "scala-playground") map {
+//      case Some(List())       => println(s"${Thread.currentThread().getName} - Found no commits.")
+//      case Some(commits) => println(s"${Thread.currentThread().getName} - Found commits: $commits")
+//      case None => println(s"${Thread.currentThread().getName} - Could not request commits.")
+//    }
 
-    githubService.commitsFor("bhuemer", "scala-playground") map {
-      case Some(List())       => println(s"${Thread.currentThread().getName} - Found no commits.")
-      case Some(commits) => println(s"${Thread.currentThread().getName} - Found commits: $commits")
-      case None => println(s"${Thread.currentThread().getName} - Could not request commits.")
+    githubService.followerNamesFor("jsuereth") map {
+      case Some(List()) => println(s"${Thread.currentThread().getName} - Found no followers.")
+      case Some(followers) => println(s"${Thread.currentThread().getName} - Found followers: $followers")
+      case None => println(s"${Thread.currentThread().getName} - Could not find followers.")
     }
 
     // In case we're using futures .. wait a bit, don't stop immediately.

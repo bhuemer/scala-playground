@@ -10,6 +10,11 @@ trait GitHubService[Context[_]] {
   def repositoryNamesFor(owner: String): Context[Option[List[String]]]
 
   /**
+   * Finds all followers for the given users.
+   */
+  def followerNamesFor(user: String): Context[Option[List[String]]]
+
+  /**
    * Finds a list of all the commits for the given repository.
    */
   def commitsFor(owner: String, repository: String): Context[Option[List[Commit]]]

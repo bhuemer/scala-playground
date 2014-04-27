@@ -12,27 +12,37 @@ class HttpGitHubService[Context[_]: Monad](httpRequestor: HttpRequestor[Context]
   import at.bhuemer.scala.playground.github.monad.syntax._
 
   override def repositoryNamesFor(owner: String): Context[Option[List[String]]] =
-    httpRequestor.request(
-      s"https://api.github.com/users/$owner/repos") map
-        processResponse { repository: Map[String, String] =>
-          // Just extract the name of each repository
-          repository.getOrElse("name", "")
-        }
+    request(s"/users/$owner/repos") map
+      processResponse { repository: Map[String, String] =>
+        // Just extract the name of each repository
+        repository.getOrElse("name", "")
+      }
+
+  override def followerNamesFor(user: String): Context[Option[List[String]]] =
+    request(s"/users/$user/followers") map
+      processResponse { follower: Map[String, String] =>
+        // Just extract the name (login) of each follower
+        follower.getOrElse("login", "")
+      }
 
   override def commitsFor(owner: String, repository: String): Context[Option[List[Commit]]] =
-    httpRequestor.request(
-      s"https://api.github.com/repos/$owner/$repository/commits") map
-        processResponse { commitWithExtras: Map[String, Map[String, Any]] =>
-          val commit = commitWithExtras("commit")
-          val committer =
-            commit("committer").asInstanceOf[Map[String, String]]
-          Commit(
-            committer("name"),
-            committer("email"),
-            committer("date"),
-            commit.getOrElse("message", "").asInstanceOf[String]
-          )
-        }
+    request(s"/repos/$owner/$repository/commits") map
+      processResponse { commitWithExtras: Map[String, Map[String, Any]] =>
+        val commit = commitWithExtras("commit")
+        val committer =
+          commit("committer").asInstanceOf[Map[String, String]]
+        Commit(
+          committer("name"),
+          committer("email"),
+          committer("date"),
+          commit.getOrElse("message", "").asInstanceOf[String]
+        )
+      }
+
+  /** Just extracts the URL for the GitHub API */
+  @inline
+  private def request(method: String): Context[Option[String]] =
+    httpRequestor.request("https://api.github.com" + method)
 
   /**
    * Takes care of some of the boiler-plate code involved in parsing these raw responses with the builtin JSON parser.
