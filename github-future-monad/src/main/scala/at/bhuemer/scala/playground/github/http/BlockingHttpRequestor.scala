@@ -3,7 +3,6 @@ package at.bhuemer.scala.playground.github.http
 import scala.io.Source
 import at.bhuemer.scala.playground.github.monad.Monad
 import at.bhuemer.scala.playground.github.monad.functions.{pure => runInContext}
-import scala.util.Try
 
 /**
  * Very basic implementation that just uses blocking IO in a given context, i.e. you can still request HTTP data
@@ -12,13 +11,11 @@ import scala.util.Try
  */
 class BlockingHttpRequestor[Context[_] : Monad] extends HttpRequestor[Context] {
 
-  def request(url: String): Context[Try[String]] =
+  def request(url: String): Context[String] =
     runInContext {
-      Try(
-        withSource(Source.fromURL(url)) {
-          source => source.mkString
-        }
-      )
+      withSource(Source.fromURL(url)) {
+        source => source.mkString
+      }
     }
 
   /** Just makes sure we're closing sources properly at the end */

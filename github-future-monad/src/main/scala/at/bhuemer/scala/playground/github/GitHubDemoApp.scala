@@ -2,7 +2,7 @@ package at.bhuemer.scala.playground.github
 
 import at.bhuemer.scala.playground.github.service.{GitHubService, Commit, HttpGitHubService}
 import at.bhuemer.scala.playground.github.http.BlockingHttpRequestor
-import at.bhuemer.scala.playground.github.concurrent.{Synchronous, Asynchronous}
+import at.bhuemer.scala.playground.github.concurrent._
 import at.bhuemer.scala.playground.github.monad.Monad
 import at.bhuemer.scala.playground.github.monad.functions.sequence
 import at.bhuemer.scala.playground.github.monad.functions.pure
@@ -56,15 +56,15 @@ object GitHubDemoApp {
 //    }
 //
     githubService.commitsFor("bhuemer", "scala-playground") map {
-      case Success(List())       => println(s"${Thread.currentThread().getName} - Found no commits.")
+      case Success(List())  => println(s"${Thread.currentThread().getName} - Found no commits.")
       case Success(commits) => println(s"${Thread.currentThread().getName} - Found commits: $commits")
-      case Failure(ex) => println(s"${Thread.currentThread().getName} - Could not request commits, because of $ex")
+      case Failure(ex)      => println(s"${Thread.currentThread().getName} - Could not request commits, because of $ex")
     }
 
     githubService.followerNamesFor("foobar23434") map {
-      case Success(List()) => println(s"${Thread.currentThread().getName} - Found no followers.")
+      case Success(List())    => println(s"${Thread.currentThread().getName} - Found no followers.")
       case Success(followers) => println(s"${Thread.currentThread().getName} - Found followers: $followers")
-      case Failure(ex) => println(s"${Thread.currentThread().getName} - Could not find followers, because of $ex")
+      case Failure(ex)        => println(s"${Thread.currentThread().getName} - Could not find followers, because of $ex")
     }
 
     // In case we're using futures .. wait a bit, don't stop immediately.
