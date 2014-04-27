@@ -36,9 +36,9 @@ object GitHubDemoApp {
   def main(args: Array[String]): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
 
-    val githubService = new HttpGitHubService(new BlockingHttpRequestor[Asynchronous])
+    // val githubService = new HttpGitHubService(new BlockingHttpRequestor[Asynchronous])
     // This one line changes the whole application from being executed asynchronously to synchronously.
-    // val githubService = new HttpGitHubService(new BlockingHttpRequestor[Synchronous])
+    val githubService = new HttpGitHubService(new BlockingHttpRequestor[Synchronous])
 
 //    findAllProjectStats(githubService, "bhuemer") map { allProjectStats =>
 //      allProjectStats map { projectStats =>
@@ -56,15 +56,17 @@ object GitHubDemoApp {
 //    }
 //
     githubService.commitsFor("bhuemer", "scala-playground") map {
-      case Success(List())  => println(s"${Thread.currentThread().getName} - Found no commits.")
-      case Success(commits) => println(s"${Thread.currentThread().getName} - Found commits: $commits")
-      case Failure(ex)      => println(s"${Thread.currentThread().getName} - Could not request commits, because of $ex")
+      case Nil     => println(s"${Thread.currentThread().getName} - Found no commits.")
+      case commits => println(s"${Thread.currentThread().getName} - Found commits: $commits")
+    } recover {
+      case ex      => println(s"${Thread.currentThread().getName} - Could not request commits, because of $ex")
     }
 
     githubService.followerNamesFor("foobar23434") map {
-      case Success(List())    => println(s"${Thread.currentThread().getName} - Found no followers.")
-      case Success(followers) => println(s"${Thread.currentThread().getName} - Found followers: $followers")
-      case Failure(ex)        => println(s"${Thread.currentThread().getName} - Could not find followers, because of $ex")
+      case Nil       => println(s"${Thread.currentThread().getName} - Found no followers.")
+      case followers => println(s"${Thread.currentThread().getName} - Found followers: $followers")
+    } recover {
+      case ex        => println(s"${Thread.currentThread().getName} - Could not find followers, because of $ex")
     }
 
     // In case we're using futures .. wait a bit, don't stop immediately.
