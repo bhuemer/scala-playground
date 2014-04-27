@@ -13,6 +13,7 @@ trait Monad[M[_]] {
 }
 
 object Monad {
+
   implicit def futureInstance(implicit execctx: ExecutionContext) = new Monad[Future] {
     override def unit[A](a: => A): Future[A] = Future { a }
     override def map[A, B](ma: Future[A])(f: (A) => B): Future[B] = ma map f
@@ -24,4 +25,5 @@ object Monad {
     override def map[A, B](ma: Synchronous[A])(f: A => B): Synchronous[B] = ma map f
     override def flatMap[A, B](ma: Synchronous[A])(f: A => Synchronous[B]): Synchronous[B] = ma flatMap f
   }
+
 }

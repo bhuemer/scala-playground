@@ -3,6 +3,7 @@ package at.bhuemer.scala.playground.github.http
 import scala.io.Source
 import scala.util.control.NonFatal
 import at.bhuemer.scala.playground.github.monad.Monad
+import at.bhuemer.scala.playground.github.monad.functions.{pure => runInContext}
 
 /**
  * Very basic implementation that just uses blocking IO in a given context, i.e. you can still request HTTP data
@@ -24,11 +25,5 @@ class BlockingHttpRequestor[Context[_] : Monad] extends HttpRequestor[Context] {
   /** Just makes sure we're closing sources properly at the end */
   private def withSource[A](source: Source)(f: Source => A): A =
     try f(source) finally source.close()
-
-  /** Makes the method "request" less scary by putting all the monadic stuff in here .. */
-  private def runInContext[A](f: => A) = {
-    val contextMonadInstance = implicitly[Monad[Context]]
-    contextMonadInstance.unit(f)
-  }
 
 }

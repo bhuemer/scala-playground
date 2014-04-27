@@ -3,7 +3,12 @@ package at.bhuemer.scala.playground.github.service
 import at.bhuemer.scala.playground.github.http.HttpRequestor
 import at.bhuemer.scala.playground.github.monad.Monad
 
+/**
+ * Uses the JSON REST API provided by GitHub to implement our service.
+ *
+ */
 class HttpGitHubService[Context[_]: Monad](httpRequestor: HttpRequestor[Context]) extends GitHubService[Context] {
+  // So that we can use map on whatever context we're given
   import at.bhuemer.scala.playground.github.monad.syntax._
 
   override def repositoryNamesFor(owner: String): Context[Option[List[String]]] =
