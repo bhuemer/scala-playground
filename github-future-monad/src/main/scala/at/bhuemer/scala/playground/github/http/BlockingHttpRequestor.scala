@@ -1,9 +1,9 @@
 package at.bhuemer.scala.playground.github.http
 
 import scala.io.Source
-import scala.util.control.NonFatal
 import at.bhuemer.scala.playground.github.monad.Monad
 import at.bhuemer.scala.playground.github.monad.functions.{pure => runInContext}
+import scala.util.Try
 
 /**
  * Very basic implementation that just uses blocking IO in a given context, i.e. you can still request HTTP data
@@ -12,14 +12,13 @@ import at.bhuemer.scala.playground.github.monad.functions.{pure => runInContext}
  */
 class BlockingHttpRequestor[Context[_] : Monad] extends HttpRequestor[Context] {
 
-  def request(url: String): Context[Option[String]] =
+  def request(url: String): Context[Try[String]] =
     runInContext {
-      try withSource(Source.fromURL(url)) {
-        source => Some(source.mkString)
-      } catch {
-        // I know, certainly not the best way to handle exceptions ..
-        case NonFatal(_) => None
-      }
+      Try(
+        withSource(Source.fromURL(url)) {
+          source => source.mkString
+        }
+      )
     }
 
   /** Just makes sure we're closing sources properly at the end */
