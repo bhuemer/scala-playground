@@ -51,10 +51,7 @@ class HttpGitHubService[Context[_]: Monad](httpRequestor: HttpRequestor[Context]
         for {
           rawResponse <- maybeRawResponse
           jsonResponse <- JSON.parseFull(rawResponse)
-          typedResponse <- Some(
-            jsonResponse.asInstanceOf[List[A]]
-          )
-        } yield typedResponse map body
+        } yield jsonResponse.asInstanceOf[List[A]] map body
       }
   }
 

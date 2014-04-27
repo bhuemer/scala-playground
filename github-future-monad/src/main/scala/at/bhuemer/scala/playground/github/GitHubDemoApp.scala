@@ -54,11 +54,11 @@ object GitHubDemoApp {
 //      }
 //    }
 //
-//    githubService.commitsFor("bhuemer", "scala-playground") map {
-//      case Some(List())       => println(s"${Thread.currentThread().getName} - Found no commits.")
-//      case Some(commits) => println(s"${Thread.currentThread().getName} - Found commits: $commits")
-//      case None => println(s"${Thread.currentThread().getName} - Could not request commits.")
-//    }
+    githubService.commitsFor("bhuemer", "scala-playground") map {
+      case Some(List())       => println(s"${Thread.currentThread().getName} - Found no commits.")
+      case Some(commits) => println(s"${Thread.currentThread().getName} - Found commits: $commits")
+      case None => println(s"${Thread.currentThread().getName} - Could not request commits.")
+    }
 
     githubService.followerNamesFor("jsuereth") map {
       case Some(List()) => println(s"${Thread.currentThread().getName} - Found no followers.")
