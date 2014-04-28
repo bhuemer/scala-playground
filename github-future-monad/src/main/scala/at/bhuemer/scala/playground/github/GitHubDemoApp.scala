@@ -17,16 +17,16 @@ object GitHubDemoApp {
 
   def findProjectStatus[Context[_]: Monad]
       (service: GitHubService[Context], owner: String, repositoryName: String): Context[ProjectStats] =
-    for {
-      commits <- service.commitsFor(owner, repositoryName)
-    } yield ProjectStats(owner, repositoryName, commits)
+    service.commitsFor(owner, repositoryName) map (
+      ProjectStats(owner, repositoryName, _)
+    )
 
   def findAllProjectStats[Context[_]: Monad]
       (service: GitHubService[Context], owner: String, repositoryNames: List[String]): Context[List[ProjectStats]] =
     sequence(
-      for {
-        repositoryName <- repositoryNames
-      } yield findProjectStatus(service, owner, repositoryName)
+      repositoryNames map (
+        findProjectStatus(service, owner, _)
+      )
     )
 
   def findAllProjectStats[Context[_] : Monad]
@@ -45,7 +45,7 @@ object GitHubDemoApp {
 
     findAllProjectStats(githubService, "bhuemer") map { allProjectStats =>
       allProjectStats map { projectStats =>
-        println(s"For the project ${projectStats.repositoryName} by" +
+        println(s"${Thread.currentThread().getName} - For the project ${projectStats.repositoryName} by" +
           s" ${projectStats.owner} we found the following commits: ${projectStats.commits}.")
       }
     }
