@@ -15,25 +15,21 @@ object GitHubDemoApp {
 
   import at.bhuemer.scala.playground.github.monad.syntax._
 
-  def findProjectStatus[Context[_]: Monad]
-      (service: GitHubService[Context], owner: String, repositoryName: String): Context[ProjectStats] =
+  def findProjectStatus[Context[_]: Monad](service: GitHubService[Context], owner: String, repositoryName: String): Context[ProjectStats] =
     service.commitsFor(owner, repositoryName) map (
       ProjectStats(owner, repositoryName, _)
     )
 
-  def findAllProjectStats[Context[_]: Monad]
-      (service: GitHubService[Context], owner: String, repositoryNames: List[String]): Context[List[ProjectStats]] =
+  def findAllProjectStats[Context[_]: Monad](service: GitHubService[Context], owner: String, repositoryNames: List[String]): Context[List[ProjectStats]] =
     sequence(
       repositoryNames map (
         findProjectStatus(service, owner, _)
       )
     )
 
-  def findAllProjectStats[Context[_] : Monad]
-      (service: GitHubService[Context], owner: String): Context[List[ProjectStats]] =
+  def findAllProjectStats[Context[_] : Monad](service: GitHubService[Context], owner: String): Context[List[ProjectStats]] =
     service.repositoryNamesFor(owner) flatMap {
-      repositoryNames =>
-        findAllProjectStats(service, owner, repositoryNames)
+      findAllProjectStats(service, owner, _)
     }
 
   def main(args: Array[String]): Unit = {
