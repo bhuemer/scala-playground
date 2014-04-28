@@ -5,8 +5,6 @@ import at.bhuemer.scala.playground.github.http.BlockingHttpRequestor
 import at.bhuemer.scala.playground.github.concurrent._
 import at.bhuemer.scala.playground.github.monad.Monad
 import at.bhuemer.scala.playground.github.monad.functions.sequence
-import at.bhuemer.scala.playground.github.monad.functions.pure
-import scala.util.{Failure, Success}
 
 case class ProjectStats(owner: String, repositoryName: String, commits: List[Commit])
 
@@ -17,35 +15,40 @@ object GitHubDemoApp {
 
   import at.bhuemer.scala.playground.github.monad.syntax._
 
-//  def findProjectStatus[Context[_]: Monad]
-//      (service: GitHubService[Context], owner: String)(repository: String): Context[ProjectStats] =
-//    service.commitsFor(owner, repository) map { maybeCommits =>
-//      ProjectStats(owner, repository, maybeCommits.getOrElse(Nil))
-//    }
-//
-//  def findAllProjectStats[Context[_] : Monad]
-//      (service: GitHubService[Context], owner: String): Context[List[ProjectStats]] =
-//    service.repositoryNamesFor(owner) flatMap {
-//      case Some(repositoryNames) =>
-//        sequence(
-//          repositoryNames map findProjectStatus(service, owner)
-//        )
-//      case None => pure(Nil.asInstanceOf[List[ProjectStats]])
-//    }
+  def findProjectStatus[Context[_]: Monad]
+      (service: GitHubService[Context], owner: String, repositoryName: String): Context[ProjectStats] =
+    for {
+      commits <- service.commitsFor(owner, repositoryName)
+    } yield ProjectStats(owner, repositoryName, commits)
+
+  def findAllProjectStats[Context[_]: Monad]
+      (service: GitHubService[Context], owner: String, repositoryNames: List[String]): Context[List[ProjectStats]] =
+    sequence(
+      for {
+        repositoryName <- repositoryNames
+      } yield findProjectStatus(service, owner, repositoryName)
+    )
+
+  def findAllProjectStats[Context[_] : Monad]
+      (service: GitHubService[Context], owner: String): Context[List[ProjectStats]] =
+    service.repositoryNamesFor(owner) flatMap {
+      repositoryNames =>
+        findAllProjectStats(service, owner, repositoryNames)
+    }
 
   def main(args: Array[String]): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
 
-    // val githubService = new HttpGitHubService(new BlockingHttpRequestor[Asynchronous])
+    val githubService = new HttpGitHubService(new BlockingHttpRequestor[Asynchronous])
     // This one line changes the whole application from being executed asynchronously to synchronously.
-    val githubService = new HttpGitHubService(new BlockingHttpRequestor[Synchronous])
+    // val githubService = new HttpGitHubService(new BlockingHttpRequestor[Synchronous])
 
-//    findAllProjectStats(githubService, "bhuemer") map { allProjectStats =>
-//      allProjectStats map { projectStats =>
-//        println(s"For the project ${projectStats.repositoryName} by" +
-//          s" ${projectStats.owner} we found the following commits: ${projectStats.commits}.")
-//      }
-//    }
+    findAllProjectStats(githubService, "bhuemer") map { allProjectStats =>
+      allProjectStats map { projectStats =>
+        println(s"For the project ${projectStats.repositoryName} by" +
+          s" ${projectStats.owner} we found the following commits: ${projectStats.commits}.")
+      }
+    }
 
 //    Seq("bhuemer", "foobar", "doesthisnameexist", "horst") foreach { user =>
 //      githubService.repositoryNamesFor(user) map {

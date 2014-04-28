@@ -8,8 +8,6 @@ import at.bhuemer.scala.playground.github.monad.Monad
  *
  */
 class HttpGitHubService[Context[_]: Monad](httpRequestor: HttpRequestor[Context]) extends GitHubService[Context] {
-  // So that we can use map on whatever context we're given
-  import at.bhuemer.scala.playground.github.monad.syntax._
 
   override def repositoryNamesFor(owner: String): Context[List[String]] =
     request(s"/users/$owner/repos") {
@@ -45,7 +43,10 @@ class HttpGitHubService[Context[_]: Monad](httpRequestor: HttpRequestor[Context]
    * but then .. I haven't found anything in the GitHub API that doesn't return a list.
    */
   private def request[A, B](method: String)(body: A => B): Context[List[B]] = {
+    // So that we can use map on whatever context we're given
+    import at.bhuemer.scala.playground.github.monad.syntax._
     import scala.util.parsing.json.JSON
+
     httpRequestor.request("https://api.github.com" + method) map {
       rawResponse =>
         JSON.parseFull(rawResponse).getOrElse(
