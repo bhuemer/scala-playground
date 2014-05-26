@@ -5,14 +5,14 @@ import scala.util.Try
 import at.bhuemer.scala.playground.github.monad.Monad
 
 /**
- *
+ * Defines the contexts we want to use to distinguish between asynchronous and synchronous execution behaviour.
  */
 package object concurrent {
 
   type Asynchronous[+A] = Future[A]
   type  Synchronous[+A] =    Try[A]
 
-  implicit def asynchronousInstance(implicit execctx: ExecutionContext) = new Monad[Asynchronous] {
+  implicit def asynchronousInstance(implicit ctx: ExecutionContext) = new Monad[Asynchronous] {
     override def unit[A](a: => A): Asynchronous[A] = Future { a }
     override def map[A, B](ma: Asynchronous[A])(f: A => B): Asynchronous[B] = ma map f
     override def flatMap[A, B](ma: Asynchronous[A])(f: A => Asynchronous[B]): Asynchronous[B] = ma flatMap f

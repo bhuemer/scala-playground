@@ -11,7 +11,8 @@ import at.bhuemer.scala.playground.github.monad.functions.{pure => runInContext}
  */
 class BlockingHttpRequestor[Context[_] : Monad] extends HttpRequestor[Context] {
 
-  def request(url: String): Context[String] =
+  override def request(url: String): Context[String] =
+    // Rather than writing Future { .. }, we'll keep this generic
     runInContext {
       withSource(Source.fromURL(url)) {
         source => source.mkString

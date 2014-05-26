@@ -39,12 +39,12 @@ object GitHubDemoApp {
     // This one line changes the whole application from being executed asynchronously to synchronously.
     // val githubService = new HttpGitHubService(new BlockingHttpRequestor[Synchronous])
 
-    findAllProjectStats(githubService, "bhuemer") map { allProjectStats =>
-      allProjectStats map { projectStats =>
-        println(s"${Thread.currentThread().getName} - For the project ${projectStats.repositoryName} by" +
-          s" ${projectStats.owner} we found the following commits: ${projectStats.commits}.")
-      }
-    }
+//    findAllProjectStats(githubService, "bhuemer") map { allProjectStats =>
+//      allProjectStats map { projectStats =>
+//        println(s"${Thread.currentThread().getName} - For the project ${projectStats.repositoryName} by" +
+//          s" ${projectStats.owner} we found the following commits: ${projectStats.commits}.")
+//      }
+//    }
 
 //    Seq("bhuemer", "foobar", "doesthisnameexist", "horst") foreach { user =>
 //      githubService.repositoryNamesFor(user) map {
