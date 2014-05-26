@@ -28,12 +28,7 @@ class TwoPhaseSet[A](private val added: Set[A] = Set.empty[A], private val remov
    * Creates a new set with the given element removed from this set.
    */
   def -(elem: A): TwoPhaseSet[A] =
-    // Only allow people to remove elements if they've been added before.
-    if (added.contains(elem)) {
-      new TwoPhaseSet[A](added, removed + elem)
-    } else {
-      this
-    }
+    new TwoPhaseSet[A](added, removed + elem)
 
   def merge(other: TwoPhaseSet[A]): TwoPhaseSet[A] =
     new TwoPhaseSet[A](added ++ other.added, removed ++ other.removed)

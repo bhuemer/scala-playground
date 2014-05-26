@@ -11,6 +11,7 @@ class Receiver(receiverProps: Props) extends Actor with NonDeterminism {
   override def receive = {
     case message =>
       either {
+        Thread.sleep(10) // Wait a little bit to let other messages race ahead
         sender() ! Resend(message)
       } or {
         receiver ! message

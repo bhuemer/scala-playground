@@ -34,25 +34,28 @@ object UnsafeReplicaApp {
       replicate(network[UnsafeReplica])
     )
 
-    (1 to 10) foreach { _ =>
-      (1 to 10) foreach { replicasRef ! UnsafeReplica.Add(_) }
-      (1 to 10) foreach { replicasRef ! UnsafeReplica.Remove(_) }
+    val rnd = new scala.util.Random()
+    (1 to 3) foreach { _ =>
+      (1 to 10) foreach { i => if (rnd.nextBoolean()) replicasRef ! UnsafeReplica.Add(i) }
+      (1 to 10) foreach { i => if (rnd.nextBoolean()) replicasRef ! UnsafeReplica.Remove(i) }
     }
+
+    // wait a little bit so that the nodes have time to reach consistency
+    Thread.sleep(1000)
 
     /*
      * Last time around this produced something like:
      *
-     * Set(1)
-     * Set(6, 2)
-     * Set(10, 7)
-     * Set(5, 6, 9, 2, 8)
-     * Set(5, 8)
+     * Set(10, 7, 3, 8, 4)
+     * Set(6, 2, 8)
+     * Set(5, 1, 6, 9, 8, 4)
+     * Set(6, 9, 7, 8, 4)
+     * Set(5, 10, 1, 2, 3, 8)
      *
      * .. i.e. inconsistent replicas ..
      */
     replicasRef ! UnsafeReplica.PrintAll
 
-    Thread.sleep(100)
     actorSystem.shutdown()
     actorSystem.awaitTermination()
   }
