@@ -3,7 +3,7 @@ package at.bhuemer.scala.playground.support
 import scala.util.Random
 
 /**
- *
+ * Just encapsulates everything we need to simulate non-determinism in this little toy example.
  */
 trait NonDeterminism {
 
